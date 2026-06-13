@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cash Chase 2026</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>💰 The Cash Chase 2026</h1>
+        <p>Earn More. Rank Higher. Avoid the Dinner Bill. 🍔</p>
+    </header>
+
+    <section class="stats">
+        <div class="card">
+            <h2>🏆 Leaderboard</h2>
+            <div id="leaderboard"></div>
+        </div>
+
+        <div class="card">
+            <h2>🍔 Current Dinner Sponsor</h2>
+            <p id="loser">Loading...</p>
+        </div>
+
+        <div class="card">
+            <h2>⏳ Countdown</h2>
+            <p id="countdown"></p>
+        </div>
+    </section>
+
+    <section class="form-section">
+        <h2>📅 Daily Entry</h2>
+
+        <select id="name">
+            <option>Naimul</option>
+            <option>Ariyan</option>
+            <option>Tahsin</option>
+        </select>
+
+        <select id="platform">
+            <option>Uber Eats</option>
+            <option>DoorDash</option>
+            <option>Cash Job</option>
+        </select>
+
+        <input type="number" id="income" placeholder="Income ($)">
+        <input type="number" id="hours" placeholder="Hours Worked">
+        <input type="number" id="deliveries" placeholder="Deliveries">
+
+        <button onclick="saveEntry()">Save Entry</button>
+    </section>
+
+    <section class="table-section">
+        <h2>📊 Entries</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Platform</th>
+                    <th>Income</th>
+                    <th>Hours</th>
+                    <th>Deliveries</th>
+                </tr>
+            </thead>
+            <tbody id="entriesTable"></tbody>
+        </table>
+    </section>
+
+    <script type="module" src="app.js"></script>
+
+</body>
+</html>
