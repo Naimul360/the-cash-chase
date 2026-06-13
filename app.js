@@ -25,6 +25,10 @@ const db = getFirestore(app);
 const players = ["Naimul", "Ariyan", "Tahsin"];
 const entriesRef = collection(db, "entries");
 
+let incomeChart;
+let hoursChart;
+let deliveriesChart;
+
 window.saveEntry = async function () {
   const name = document.getElementById("name").value;
   const platform = document.getElementById("platform").value;
@@ -65,28 +69,16 @@ onSnapshot(q, (snapshot) => {
   const entries = [];
   snapshot.forEach((doc) => entries.push(doc.data()));
 
+  const totals = calculateTotals(entries);
+
   updateTable(entries);
-  updateLeaderboard(entries);
+  updateLeaderboard(totals);
+  updateSummary(totals);
+  updateCharts(totals);
+  updateCountdown();
 });
 
-function updateTable(entries) {
-  const table = document.getElementById("entriesTable");
-  table.innerHTML = "";
-
-  entries.forEach((entry) => {
-    table.innerHTML += `
-      <tr>
-        <td>${entry.name}</td>
-        <td>${entry.platform}</td>
-        <td>$${entry.income || 0}</td>
-        <td>${entry.hours || 0}</td>
-        <td>${entry.deliveries || 0}</td>
-      </tr>
-    `;
-  });
-}
-
-function updateLeaderboard(entries) {
+function calculateTotals(entries) {
   const totals = {};
 
   players.forEach((player) => {
@@ -105,19 +97,46 @@ function updateLeaderboard(entries) {
     totals[entry.name].deliveries += Number(entry.deliveries || 0);
   });
 
-  const ranking = players
-    .map((name) => ({
-      name,
-      income: totals[name].income,
-      hours: totals[name].hours,
-      deliveries: totals[name].deliveries,
-      hourly:
-        totals[name].hours > 0
-          ? totals[name].income / totals[name].hours
-          : 0
-    }))
-    .sort((a, b) => b.income - a.income);
+  return totals;
+}
 
+function updateTable(entries) {
+  const table = document.getElementById("entriesTable");
+  table.innerHTML = "";
+
+  entries.forEach((entry) => {
+    table.innerHTML += `
+      <tr>
+        <td>${entry.name}</td>
+        <td>${entry.platform}</td>
+        <td>$${Number(entry.income || 0).toFixed(2)}</td>
+        <td>${Number(entry.hours || 0).toFixed(1)}</td>
+        <td>${Number(entry.deliveries || 0)}</td>
+      </tr>
+    `;
+  });
+}
+
+function getRanking(totals) {
+  return players
+    .map((name) => {
+      const income = totals[name].income;
+      const hours = totals[name].hours;
+      const deliveries = totals[name].deliveries;
+
+      return {
+        name,
+        income,
+        hours,
+        deliveries,
+        hourly: hours > 0 ? income / hours : 0
+      };
+    })
+    .sort((a, b) => b.income - a.income);
+}
+
+function updateLeaderboard(totals) {
+  const ranking = getRanking(totals);
   const leaderboard = document.getElementById("leaderboard");
   leaderboard.innerHTML = "";
 
@@ -139,8 +158,72 @@ function updateLeaderboard(entries) {
   const loser = ranking[ranking.length - 1];
   document.getElementById("loser").innerHTML =
     `🍔 ${loser.name} is currently the dinner sponsor.`;
+}
 
-  updateCountdown();
+function updateSummary(totals) {
+  const totalIncome = players.reduce((sum, p) => sum + totals[p].income, 0);
+  const totalHours = players.reduce((sum, p) => sum + totals[p].hours, 0);
+  const totalDeliveries = players.reduce((sum, p) => sum + totals[p].deliveries, 0);
+  const teamHourly = totalHours > 0 ? totalIncome / totalHours : 0;
+
+  document.getElementById("teamIncome").innerText = `$${totalIncome.toFixed(2)}`;
+  document.getElementById("teamHours").innerText = `${totalHours.toFixed(1)} hrs`;
+  document.getElementById("teamDeliveries").innerText = totalDeliveries;
+  document.getElementById("teamHourly").innerText = `$${teamHourly.toFixed(2)}/hr`;
+}
+
+function updateCharts(totals) {
+  const labels = players;
+  const incomeData = players.map((p) => totals[p].income);
+  const hoursData = players.map((p) => totals[p].hours);
+  const deliveriesData = players.map((p) => totals[p].deliveries);
+
+  drawChart("incomeChart", incomeChart, "Income ($)", incomeData, labels, (chart) => {
+    incomeChart = chart;
+  });
+
+  drawChart("hoursChart", hoursChart, "Hours Worked", hoursData, labels, (chart) => {
+    hoursChart = chart;
+  });
+
+  drawChart("deliveriesChart", deliveriesChart, "Deliveries", deliveriesData, labels, (chart) => {
+    deliveriesChart = chart;
+  });
+}
+
+function drawChart(canvasId, oldChart, label, data, labels, setChart) {
+  const canvas = document.getElementById(canvasId);
+
+  if (!canvas) return;
+
+  if (oldChart) {
+    oldChart.destroy();
+  }
+
+  const newChart = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: label,
+          data: data,
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  setChart(newChart);
 }
 
 function updateCountdown() {
