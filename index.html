@@ -1,74 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Cash Chase 2026</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Cash Chase 2026</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <h1>💰 The Cash Chase 2026</h1>
-        <p>Earn More. Rank Higher. Avoid the Dinner Bill. 🍔</p>
-    </header>
+<header>
+  <h1>💰 The Cash Chase 2026</h1>
+  <p>Earn More. Rank Higher. Avoid the Dinner Bill. 🍔</p>
+</header>
 
-    <section class="stats">
-        <div class="card">
-            <h2>🏆 Leaderboard</h2>
-            <div id="leaderboard"></div>
-        </div>
+<section class="summary">
+  <div class="card"><h3>💰 Team Income</h3><p id="teamIncome">$0</p></div>
+  <div class="card"><h3>⏱ Team Hours</h3><p id="teamHours">0 hrs</p></div>
+  <div class="card"><h3>📦 Team Deliveries</h3><p id="teamDeliveries">0</p></div>
+  <div class="card"><h3>⚡ Team $/Hour</h3><p id="teamHourly">$0/hr</p></div>
+</section>
 
-        <div class="card">
-            <h2>🍔 Current Dinner Sponsor</h2>
-            <p id="loser">Loading...</p>
-        </div>
+<section class="stats">
+  <div class="card">
+    <h2>🏆 Leaderboard</h2>
+    <div id="leaderboard"></div>
+  </div>
 
-        <div class="card">
-            <h2>⏳ Countdown</h2>
-            <p id="countdown"></p>
-        </div>
-    </section>
+  <div class="card">
+    <h2>🍔 Current Dinner Sponsor</h2>
+    <p id="loser">Loading...</p>
+  </div>
 
-    <section class="form-section">
-        <h2>📅 Daily Entry</h2>
+  <div class="card">
+    <h2>⏳ Countdown</h2>
+    <p id="countdown"></p>
+  </div>
+</section>
 
-        <select id="name">
-            <option>Naimul</option>
-            <option>Ariyan</option>
-            <option>Tahsin</option>
-        </select>
+<section class="charts">
+  <div class="card">
+    <h2>📈 Income Chart</h2>
+    <canvas id="incomeChart"></canvas>
+  </div>
 
-        <select id="platform">
-            <option>Uber Eats</option>
-            <option>DoorDash</option>
-            <option>Cash Job</option>
-        </select>
+  <div class="card">
+    <h2>⏱ Hours Chart</h2>
+    <canvas id="hoursChart"></canvas>
+  </div>
 
-        <input type="number" id="income" placeholder="Income ($)">
-        <input type="number" id="hours" placeholder="Hours Worked">
-        <input type="number" id="deliveries" placeholder="Deliveries">
+  <div class="card">
+    <h2>📦 Deliveries Chart</h2>
+    <canvas id="deliveriesChart"></canvas>
+  </div>
+</section>
 
-        <button onclick="saveEntry()">Save Entry</button>
-    </section>
+<section class="form-section">
+  <h2>📅 Daily Entry</h2>
 
-    <section class="table-section">
-        <h2>📊 Entries</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Platform</th>
-                    <th>Income</th>
-                    <th>Hours</th>
-                    <th>Deliveries</th>
-                </tr>
-            </thead>
-            <tbody id="entriesTable"></tbody>
-        </table>
-    </section>
+  <select id="name">
+    <option>Naimul</option>
+    <option>Ariyan</option>
+    <option>Tahsin</option>
+  </select>
 
-    <script type="module" src="app.js"></script>
+  <select id="platform">
+    <option>Uber Eats</option>
+    <option>DoorDash</option>
+    <option>Cash Job</option>
+  </select>
+
+  <input type="number" id="income" placeholder="Income ($)">
+  <input type="number" id="hours" placeholder="Hours Worked">
+  <input type="number" id="deliveries" placeholder="Deliveries">
+
+  <button onclick="saveEntry()">Save Entry</button>
+</section>
+
+<section class="table-section">
+  <h2>📊 Entries</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Platform</th>
+        <th>Income</th>
+        <th>Hours</th>
+        <th>Deliveries</th>
+      </tr>
+    </thead>
+    <tbody id="entriesTable"></tbody>
+  </table>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module" src="app.js"></script>
 
 </body>
 </html>
