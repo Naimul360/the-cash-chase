@@ -6,7 +6,10 @@ import {
   onSnapshot,
   query,
   orderBy,
-  serverTimestamp
+  serverTimestamp,
+  doc,
+  deleteDoc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -73,7 +76,12 @@ const q = query(entriesRef, orderBy("createdAt", "desc"));
 
 onSnapshot(q, (snapshot) => {
   const entries = [];
-  snapshot.forEach((doc) => entries.push(doc.data()));
+  snapshot.forEach((docSnap) => {
+    entries.push({
+      id: docSnap.id,
+      ...docSnap.data()
+    });
+  });
 
   const totals = calculateTotals(entries);
 
@@ -116,6 +124,10 @@ function updateTable(entries) {
         <td>$${Number(e.income || 0).toFixed(2)}</td>
         <td>${Number(e.hours || 0).toFixed(1)}</td>
         <td>${Number(e.deliveries || 0)}</td>
+        <td>
+          <button onclick="editEntry('${e.id}')">✏️ Edit</button>
+          <button onclick="deleteEntry('${e.id}')">🗑 Delete</button>
+        </td>
       </tr>
     `;
   });
@@ -341,6 +353,46 @@ function updateWeeklyWinners(entries) {
     box.innerHTML = "No weekly data yet.";
   }
 }
+
+const adminCode = "naimul2026";
+
+window.deleteEntry = async function (id) {
+  const code = prompt("Enter admin code:");
+
+  if (code !== adminCode) {
+    alert("Wrong admin code.");
+    return;
+  }
+
+  const confirmDelete = confirm("Are you sure you want to delete this entry?");
+
+  if (!confirmDelete) return;
+
+  await deleteDoc(doc(db, "entries", id));
+
+  alert("Entry deleted.");
+};
+
+window.editEntry = async function (id) {
+  const code = prompt("Enter admin code:");
+
+  if (code !== adminCode) {
+    alert("Wrong admin code.");
+    return;
+  }
+
+  const newIncome = prompt("Enter new income:");
+  const newHours = prompt("Enter new hours:");
+  const newDeliveries = prompt("Enter new deliveries:");
+
+  await updateDoc(doc(db, "entries", id), {
+    income: Number(newIncome),
+    hours: Number(newHours),
+    deliveries: Number(newDeliveries)
+  });
+
+  alert("Entry updated.");
+};
 
 function updateCountdown() {
   const endDate = new Date("2026-07-26T23:59:59");
