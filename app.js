@@ -75,6 +75,19 @@ onSnapshot(q, (snapshot) => {
   const entries = [];
   snapshot.forEach((doc) => entries.push(doc.data()));
 
+  const totals = calculateTotals(entries);
+
+  updateTable(entries);
+  updateSummary(totals);
+  updateLeaderboard(totals);
+  updateCharts(totals);
+  updateDailyChampion(entries);
+  updateOvertakeMeter(totals);
+  updatePlatformBreakdown(entries);
+  updateCountdown();
+});
+
+function calculateTotals(entries) {
   const totals = {};
   players.forEach(p => totals[p] = { income: 0, hours: 0, deliveries: 0 });
 
@@ -85,12 +98,8 @@ onSnapshot(q, (snapshot) => {
     totals[e.name].deliveries += Number(e.deliveries || 0);
   });
 
-  updateTable(entries);
-  updateSummary(totals);
-  updateLeaderboard(totals);
-  updateCharts(totals);
-  updateCountdown();
-});
+  return totals;
+}
 
 function updateTable(entries) {
   const table = document.getElementById("entriesTable");
@@ -201,6 +210,87 @@ function drawChart(id, oldChart, label, labels, data) {
         }
       }
     }
+  });
+}
+
+function updateDailyChampion(entries) {
+  const today = new Date().toLocaleDateString("en-AU");
+  const dailyTotals = {};
+  players.forEach(p => dailyTotals[p] = 0);
+
+  entries.forEach(e => {
+    if (e.date === today && dailyTotals[e.name] !== undefined) {
+      dailyTotals[e.name] += Number(e.income || 0);
+    }
+  });
+
+  const ranking = players
+    .map(name => ({ name, income: dailyTotals[name] }))
+    .sort((a, b) => b.income - a.income);
+
+  const champion = ranking[0];
+
+  if (champion.income === 0) {
+    document.getElementById("dailyChampion").innerText =
+      "No one has entered income today yet.";
+  } else {
+    document.getElementById("dailyChampion").innerText =
+      `👑 ${champion.name} is today's champion with $${champion.income.toFixed(2)}.`;
+  }
+}
+
+function updateOvertakeMeter(totals) {
+  const ranking = getRanking(totals);
+  const leaderIncome = ranking[0].income || 1;
+  const box = document.getElementById("overtakeMeter");
+
+  box.innerHTML = "";
+
+  ranking.forEach((p, index) => {
+    const percent = Math.min((p.income / leaderIncome) * 100, 100);
+    const target = index === 0 ? 0 : ranking[index - 1].income - p.income;
+
+    box.innerHTML += `
+      <div class="progress-box">
+        <strong>${index + 1}. ${p.name}</strong> — $${p.income.toFixed(2)}
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${percent}%"></div>
+        </div>
+        <small>${index === 0 ? "Currently leading 🏆" : `Needs $${target.toFixed(2)} to overtake ${ranking[index - 1].name}`}</small>
+      </div>
+    `;
+  });
+}
+
+function updatePlatformBreakdown(entries) {
+  const platforms = ["Uber Eats", "DoorDash", "Cash Job"];
+  const data = {};
+
+  players.forEach(player => {
+    data[player] = {};
+    platforms.forEach(platform => data[player][platform] = 0);
+  });
+
+  entries.forEach(e => {
+    if (data[e.name] && data[e.name][e.platform] !== undefined) {
+      data[e.name][e.platform] += Number(e.income || 0);
+    }
+  });
+
+  const box = document.getElementById("platformBreakdown");
+  box.innerHTML = `<div class="breakdown-grid"></div>`;
+
+  const grid = box.querySelector(".breakdown-grid");
+
+  players.forEach(player => {
+    grid.innerHTML += `
+      <div class="breakdown-card">
+        <h3>${player}</h3>
+        <p>🛵 Uber Eats: $${data[player]["Uber Eats"].toFixed(2)}</p>
+        <p>🚗 DoorDash: $${data[player]["DoorDash"].toFixed(2)}</p>
+        <p>💵 Cash Job: $${data[player]["Cash Job"].toFixed(2)}</p>
+      </div>
+    `;
   });
 }
 
