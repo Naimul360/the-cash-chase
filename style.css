@@ -19,7 +19,8 @@ header h1 {
 
 .summary,
 .stats,
-.charts {
+.charts,
+.platform-section {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
@@ -69,6 +70,37 @@ button {
 
 button:hover {
   background: #1d4ed8;
+}
+
+.progress-box {
+  margin-bottom: 18px;
+}
+
+.progress-bar {
+  width: 100%;
+  background: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  height: 18px;
+  margin-top: 6px;
+}
+
+.progress-fill {
+  background: #2563eb;
+  height: 100%;
+  width: 0%;
+}
+
+.breakdown-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.breakdown-card {
+  background: #f9fafb;
+  padding: 15px;
+  border-radius: 10px;
 }
 
 table {
