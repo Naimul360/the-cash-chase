@@ -82,6 +82,7 @@ onSnapshot(q, (snapshot) => {
   updateLeaderboard(totals);
   updateCharts(totals);
   updateDailyChampion(entries);
+  updateWeeklyWinners(entries);
   updateOvertakeMeter(totals);
   updatePlatformBreakdown(entries);
   updateCountdown();
@@ -292,6 +293,53 @@ function updatePlatformBreakdown(entries) {
       </div>
     `;
   });
+}
+
+function updateWeeklyWinners(entries) {
+  const box = document.getElementById("weeklyWinners");
+
+  if (!box) return;
+
+  const weeklyData = {};
+
+  entries.forEach(entry => {
+    if (!entry.date) return;
+
+    const parts = entry.date.split("/");
+    const dateObj = new Date(parts[2], parts[1] - 1, parts[0]);
+
+    const week = Math.ceil(dateObj.getDate() / 7);
+
+    if (!weeklyData[week]) {
+      weeklyData[week] = {};
+      players.forEach(player => {
+        weeklyData[week][player] = 0;
+      });
+    }
+
+    weeklyData[week][entry.name] += Number(entry.income || 0);
+  });
+
+  box.innerHTML = "";
+
+  Object.keys(weeklyData)
+    .sort((a, b) => a - b)
+    .forEach(week => {
+
+      const winner = Object.entries(weeklyData[week])
+        .sort((a, b) => b[1] - a[1])[0];
+
+      box.innerHTML += `
+        <div style="margin-bottom:15px;">
+          <strong>📅 Week ${week}</strong><br>
+          🥇 ${winner[0]} - $${winner[1].toFixed(2)}
+        </div>
+      `;
+    });
+
+  if (box.innerHTML === "") {
+    box.innerHTML = "No weekly data yet.";
+  }
 }
 
 function updateCountdown() {
